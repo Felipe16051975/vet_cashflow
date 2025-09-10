@@ -17,5 +17,6 @@ class Config:
     SQLALCHEMY_DATABASE_URI = _normalize_db_url(os.getenv("DATABASE_URL", DEFAULT_SQLITE))
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
+    ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "admin")
     ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")
     ADMIN_PASSWORD_HASH = os.getenv("ADMIN_PASSWORD_HASH")
