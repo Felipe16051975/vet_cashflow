@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="win-login">
+  <div class="win-card">
+    <div class="win-titlebar">
+      <div class="win-title">
+        <span class="win-logo">🐾</span>
+        Consulta Veterinaria Tin Tin — Acceso
+      </div>
+    </div>
+
+    <div class="win-body">
+      <form method="post" class="win-form">
+        {{ form.hidden_tag() }}
+
+        <div class="win-row">
+          <label class="win-label">Contraseña</label>
+          <div class="win-field">
+            {{ form.password(type="password", placeholder="", class_="win-input") }}
+          </div>
+        </div>
+
+        <div class="win-actions">
+          <button class="win-btn primary" type="submit">Ingresar</button>
+          <button class="win-btn" type="reset">Limpiar</button>
+        </div>
+
+        <div class="win-hint">
+          Usa la clave definida en <code>.env</code> (<b>ADMIN_PASSWORD</b>) o la que corresponda al <b>ADMIN_PASSWORD_HASH</b>.
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

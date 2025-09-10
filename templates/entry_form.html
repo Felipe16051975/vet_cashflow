@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Agregar registro</h2>
+<form method="post">
+  {{ form.hidden_tag() }}
+  {{ form.categoria.label }} {{ form.categoria() }}
+  {{ form.descripcion.label }} {{ form.descripcion(size=64) }}
+  {{ form.tipo_pago.label }} {{ form.tipo_pago() }}
+  {{ form.monto.label }} {{ form.monto(size=12) }}
+  <button class="btn" type="submit">Guardar</button>
+</form>
+{% endblock %}

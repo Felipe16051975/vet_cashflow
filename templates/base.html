@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="es" data-theme="dark">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Flujo de Caja - Veterinaria</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="brand">
+        <div class="logo">🐾</div>
+        <div class="titles">
+          <h1>Consulta Veterinaria Tin Tin</h1>
+          <p class="subtitle">Flujo de Caja</p>
+        </div>
+      </div>
+
+      {% if request.endpoint != 'login' %}
+      <nav class="actions">
+        {% if session.get('logged_in') %}
+          <a class="btn" href="{{ url_for('logout') }}">Cerrar sesión</a>
+          <a class="btn" href="{{ url_for('calendar_view') }}">Calendario</a>
+          <a class="btn" href="{{ url_for('index') }}">Inicio</a>
+          <a class="btn primary" href="{{ url_for('day_new') }}">Nuevo Día</a>
+          <a class="btn" href="{{ url_for('catalog_list') }}">Catálogo</a>
+        {% else %}
+          <a class="btn primary" href="{{ url_for('login') }}">Ingresar</a>
+        {% endif %}
+      </nav>
+      {% endif %}
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <ul class="flashes">
+            {% for cat, msg in messages %}
+              <li class="{{ cat }}">{{ msg }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      {% endwith %}
+    </header>
+    <main>
+      {% block content %}{% endblock %}
+    </main>
+    <footer>
+      <small>Hecho con Flask • {{ now() if false else "" }}</small>
+    </footer>
+  </body>
+</html>

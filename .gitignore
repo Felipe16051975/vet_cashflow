@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Entorno virtual
+venv/
+.env
+
+# Base de datos local / instancia Flask
+instance/
+*.db
+
+# VSCode
+.vscode/

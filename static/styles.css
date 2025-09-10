@@ -1,0 +1,540 @@
+/* Info box para catálogo */
+.catalog-info{
+  font-size: 12px;
+  color: #334155;
+  background: #eaf2ff;
+  border: 1px solid #b6cff7;
+  padding: 6px 8px;
+  border-radius: 4px;
+}
+table { width:100%; border-collapse: collapse; margin-top:12px; }
+th, td { border-bottom: 1px solid #1f2937; padding: 8px; }
+td.right { text-align:right; }
+h4 { margin: 8px 0; }
+.cal-cell.today {
+	border:2px solid var(--accent);
+	box-shadow:0 0 0 2px var(--accent);
+}
+
+.cal-nav { display:flex; gap:8px; margin: 8px 0 16px; }
+.calendar {
+	display:grid;
+	grid-template-columns: repeat(7, 1fr);
+	gap:8px;
+}
+.cal-head {
+	text-align:center;
+	font-weight:600;
+	padding:8px 0;
+	border-bottom:1px solid #1f2937;
+	color: var(--muted);
+}
+.cal-cell {
+	min-height: 90px;
+	border:1px solid #1f2937;
+	border-radius:12px;
+	padding:8px;
+	position:relative;
+	background:#0f1420;
+}
+.cal-cell.out { opacity: 0.45; }
+.cal-date { position:absolute; top:6px; right:10px; font-size:12px; color:var(--muted); }
+.badge {
+	display:inline-block;
+	margin-top: 28px;
+	padding:4px 8px;
+	border:1px solid #374151;
+	border-radius:999px;
+	text-decoration:none;
+	color:var(--fg);
+	font-size:12px;
+}
+.badge.ok { border-color: var(--accent); }
+:root { --bg:#0b0e12; --fg:#e6e6e6; --muted:#9aa4af; --accent:#5eead4; --danger:#ef4444; }
+/* === Paleta marca Tin Tin === */
+:root {
+  --bg: #0b0e12;
+  --fg: #e6e6e6;
+  --muted: #9aa4af;
+  --accent: #7c3aed;   /* morado */
+  --accent-2: #22d3ee; /* celeste */
+  --surface: #0f1420;
+  --surface-2: #121829;
+  --border: #243149;
+  --danger: #ef4444;
+}
+
+/* === Página de login centrada === */
+.auth-wrap {
+  min-height: calc(100vh - 140px); /* header+footer aprox */
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    radial-gradient(1000px 500px at 20% -10%, rgba(124,58,237,0.20), transparent 60%),
+    radial-gradient(900px 600px at 110% 10%, rgba(34,211,238,0.18), transparent 60%);
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 460px;
+  background: linear-gradient(180deg, rgba(18,24,41,0.85), rgba(12,16,28,0.85));
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 22px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+  backdrop-filter: blur(4px);
+}
+
+.auth-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.brand-mark {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  font-size: 22px;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+  color: #fff;
+}
+.auth-brand h2 {
+  margin: 0;
+  font-size: 20px;
+}
+.brand-sub {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.auth-form {
+  margin-top: 10px;
+  display: grid;
+  gap: 14px;
+}
+.field {
+  display: grid;
+  gap: 6px;
+}
+.field > span {
+  font-size: 13px;
+  color: var(--muted);
+}
+.input {
+  width: 100%;
+  padding: 12px 12px;
+  background: var(--surface);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  outline: none;
+}
+.input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(124,58,237,0.25);
+}
+
+.btn.wide { width: 100%; }
+
+/* Botón primario con degradé morado-celeste */
+.btn.primary {
+  border-color: transparent;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+  color: white;
+  font-weight: 600;
+}
+.btn.primary:hover {
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+}
+.btn {
+  transition: transform .08s ease, filter .12s ease;
+}
+
+/* Texto auxiliar bajo el form */
+.auth-hint {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* Ajustes generales (ya tenías base) */
+header h1 { font-size: 20px; }
+
+/* --- Calendario compacto Tin Tin --- */
+.cal-nav { display:flex; gap:8px; margin: 8px 0 16px; }
+
+.calendar {
+  display:grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap:6px;
+  margin-top: 8px;
+}
+
+.cal-head {
+  text-align:center;
+  font-weight:600;
+  padding:6px 0;
+  border-bottom:1px solid #1f2937;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.cal-cell {
+  min-height: 64px;
+  border:1px solid #1f2937;
+  border-radius:12px;
+  padding:6px;
+  position:relative;
+  background:#0f1420;
+}
+
+.cal-cell.out { opacity: .45; }
+.cal-date {
+  position:absolute; top:6px; right:8px;
+  font-size:12px; color:var(--muted);
+}
+
+/* chips mini resumen */
+.mini { position:absolute; left:8px; bottom:8px; display:flex; gap:6px; }
+.chip { font-size:11px; padding:2px 6px; border-radius:999px; border:1px solid #374151; color: var(--fg); }
+.chip.total { border-color: var(--accent); }
+
+/* botones dentro de celda */
+.badge {
+  position:absolute; right:8px; bottom:8px;
+  padding:3px 8px; border:1px solid #374151; border-radius:999px;
+  text-decoration:none; color:var(--fg); font-size:12px; line-height:1.2;
+}
+.badge.ok { border-color: var(--accent); }
+
+/* ===== Cabecera (grande, sin degradés) ===== */
+.site-header {
+  display:flex; align-items:center; justify-content:space-between;
+  max-width: 1100px; margin: 0 auto; padding: 20px 16px;
+  border-bottom: 1px solid var(--border);
+  background: #0b0e12;
+}
+.brand { display:flex; align-items:center; gap:12px; }
+.logo { width:44px; height:44px; border-radius:12px; display:grid; place-items:center;
+  background:#121829; border:1px solid var(--border); font-size:22px; }
+.titles h1 { margin:0; font-size:22px; }
+.subtitle { margin:2px 0 0; color:var(--muted); font-size:12px; }
+
+.actions { display:flex; gap:8px; }
+
+/* ===== Botones ===== */
+.btn {
+  background:#111827; color: var(--fg);
+  padding: 8px 12px; border-radius: 999px;
+  border:1px solid #374151; text-decoration:none; display:inline-block;
+  transition: transform .08s ease, filter .12s ease;
+}
+.btn:hover { transform: translateY(-1px); }
+.btn.primary { border-color: transparent; background:#7c3aed; }
+.btn-group .btn { border-radius: 10px; }
+
+/* ===== Títulos y toolbars ===== */
+.page-title { margin: 10px 0 8px; }
+.toolbar { display:flex; align-items:center; justify-content:space-between; gap:12px; margin: 10px 0 12px; }
+.toolbar.bottom { justify-content:flex-end; }
+
+/* ===== Paleta clínica (azules) ===== */
+:root{
+  --blue-700:#2563eb;
+  --blue-600:#2f74f5;
+  --blue-500:#3b82f6;
+  --blue-300:#93c5fd;
+  --blue-100:#e0f2fe;
+  --indigo:#7c3aed;
+  --slate-900:#0b0e12;
+  --slate-700:#334155;
+  --slate-600:#475569;
+  --slate-300:#cbd5e1;
+  --slate-100:#f1f5f9;
+  --white:#fff;
+}
+
+/* ===== Hero/banner superior con degradé azul ===== */
+.cal-hero{
+  background: linear-gradient(135deg, var(--blue-500), var(--blue-300));
+  padding: 16px 0;
+  color: var(--white);
+}
+.cal-hero__inner{
+  max-width:1100px; margin:0 auto; padding: 0 16px;
+  display:flex; align-items:center; justify-content:space-between; gap:16px;
+}
+.cal-hero__brand{ display:flex; align-items:center; gap:12px; }
+.cal-hero__logo{
+  width:48px; height:48px; border-radius:10px; display:grid; place-items:center;
+  background: rgba(255,255,255,.2); font-size:26px;
+}
+.cal-hero__brand h2{ margin:0; font-size:22px; color: var(--white); }
+.cal-hero__brand p{ margin:2px 0 0; color: #eaf2ff; font-size:12px; }
+
+/* Tarjeta con datos de clínica */
+.cal-hero__card{
+  background: var(--white);
+  color: var(--slate-700);
+  border-radius: 10px;
+  padding: 12px 14px;
+  width: 360px;
+  box-shadow: 0 6px 18px rgba(0,0,0,.1);
+}
+.card__title{ font-weight:700; margin-bottom: 6px; display:flex; align-items:center; gap:6px; }
+.card__title .paw{ color: var(--blue-600); }
+.card__body{ font-size: 14px; }
+
+/* ===== Cabecera general (clara) ===== */
+.site-header{
+  background: #f8fafc; border-bottom: 2px solid var(--blue-500);
+}
+.titles h1{ color:#1e293b; }
+.subtitle{ color: var(--slate-600); }
+
+/* ===== Botones azules/morados legibles ===== */
+.btn{
+  padding: 8px 14px; border-radius: 8px; text-decoration:none; display:inline-block;
+  font-weight:700; border:none; background: var(--blue-300); color:#1f2937;
+  transition: transform .08s ease, filter .12s ease;
+}
+.btn:hover{ transform: translateY(-1px); filter: brightness(1.05); }
+.btn.primary{ background: var(--indigo); color: var(--white); }
+.btn-group .btn{ border-radius:8px; }
+
+/* ===== Calendario estilo plantilla ===== */
+.page-title{ margin:16px 0 8px; color:#1e293b; }
+
+.calendar{
+  display:grid; grid-template-columns: repeat(7, 1fr);
+  gap:8px; margin-top:10px;
+}
+.cal-head{
+  text-align:center; font-weight:800; padding:8px 0;
+  background: var(--blue-700); color: var(--white); border-radius:8px;
+  border:1px solid rgba(255,255,255,.15);
+}
+.cal-head.sun, .cal-head.sat{ background:#1d4ed8; }
+
+.cal-cell{
+  min-height: 62px; background: var(--blue-100);
+  border: 1px solid var(--slate-300); border-radius:8px;
+  padding:6px; position:relative; color:#0f172a;
+}
+.cal-cell.out{ opacity:.45; }
+.cal-cell.sun, .cal-cell.sat{ background:#fde2e2; }
+
+.cal-date{
+  position:absolute; top:6px; right:8px; font-size:12px; color:#334155; font-weight:600;
+}
+
+/* mini-resumen (cuando existe día) */
+.mini{ position:absolute; left:6px; bottom:6px; display:flex; gap:6px; flex-wrap:wrap; }
+.chip{ font-size:11px; padding:2px 6px; border-radius:999px; background:#dbeafe; color:#1e3a8a; }
+.chip.total{ background:#7c3aed; color:#fff; }
+
+/* Acción en celda */
+.badge{
+  position:absolute; right:6px; bottom:6px; padding:4px 8px;
+  border-radius:999px; background: var(--blue-500); color:#fff; text-decoration:none; font-size:12px;
+}
+.badge.ok{ background: var(--indigo); }
+
+/* ====== Look "escritorio" para pantalla de ingreso ====== */
+.win-login{
+  min-height: calc(100vh - 120px);
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: #e6eef6; /* celeste muy claro */
+}
+
+.win-card{
+  width: 820px;
+  background: #cfe3f6;                /* celeste panel */
+  border: 2px solid #99b4d1;          /* borde clásico */
+  box-shadow: 0 10px 28px rgba(0,0,0,.20);
+}
+
+.win-titlebar{
+  height: 44px;
+  background: linear-gradient(#1b4f9c, #2d6adf); /* barra azul */
+  color: #fff;
+  display:flex; align-items:center;
+  padding: 0 14px;
+  border-bottom: 2px solid #99b4d1;
+}
+
+.win-title{
+  font-weight: 700;
+  letter-spacing: .2px;
+}
+.win-logo{
+  display:inline-grid; place-items:center;
+  width:26px; height:26px; margin-right:8px;
+  background: rgba(255,255,255,.2);
+  border-radius: 4px;
+}
+
+.win-body{
+  padding: 16px 18px 18px;
+  background: #dbe9fb; /* tono más claro que el panel */
+  border-top: 1px solid #99b4d1;
+}
+
+.win-form{
+  display:grid; gap: 14px;
+  grid-template-columns: 200px 1fr;   /* etiqueta a la izquierda, campo a la derecha */
+  align-items:center;
+}
+
+.win-row{ display: contents; }
+
+.win-label{
+  justify-self: end;
+  padding-right: 10px;
+  color: #1f2d3d;
+  font-weight:600;
+}
+
+.win-field{ align-self:center; }
+
+.win-input{
+  width: 360px;
+  height: 28px;
+  padding: 4px 8px;
+  background: #fff;
+  border: 1px solid #7f9db9;          /* borde clásico */
+  box-shadow: inset 0 1px 0 #eef5ff;
+  outline: none;
+}
+.win-input:focus{
+  border-color: #2d6adf;
+  box-shadow: 0 0 0 2px rgba(45,106,223,.18);
+}
+
+/* Botonera inferior tipo escritorio */
+.win-actions{
+  grid-column: 2 / 3;
+  display:flex; gap: 8px; margin-top: 6px;
+}
+.win-btn{
+  min-width: 110px;
+  height: 30px;
+  padding: 0 12px;
+  border: 1px solid #7f9db9;
+  background: #eaf2ff;
+  color:#1f2937;
+  font-weight:700;
+  border-radius: 4px;
+}
+.win-btn:hover{ filter: brightness(1.03); }
+.win-btn:active{ transform: translateY(1px); }
+
+.win-btn.primary{
+  background: #2d6adf;
+  color: #fff;
+  border-color: #2459bf;
+}
+
+/* Nota inferior */
+.win-hint{
+  grid-column: 2 / 3;
+  margin-top: 6px;
+  font-size: 12px;
+  color: #334155;
+}
+
+/* ======== Ventana de “escritorio” (panel celeste) ======== */
+.desk-window{
+  background: #cfe3f6;
+  border: 2px solid #99b4d1;
+  margin: 12px auto;
+  max-width: 1100px;
+  box-shadow: 0 10px 28px rgba(0,0,0,.18);
+}
+
+.desk-titlebar{
+  height: 44px;
+  background: linear-gradient(#1b4f9c, #2d6adf);
+  color: #fff;
+  display:flex; align-items:center;
+  padding: 0 14px;
+  border-bottom: 2px solid #99b4d1;
+}
+.desk-title{ font-weight: 700; letter-spacing:.2px; display:flex; align-items:center; gap:8px; }
+.desk-logo{ width:26px; height:26px; border-radius:4px; display:grid; place-items:center; background:rgba(255,255,255,.2); }
+
+.desk-body{
+  padding: 16px 18px 18px;
+  background: #dbe9fb;
+  border-top: 1px solid #99b4d1;
+}
+
+/* Bloques */
+.desk-section{ margin-bottom: 12px; }
+.desk-row{ display:grid; grid-template-columns: 220px 1fr; margin: 6px 0; }
+.desk-label{ justify-self:end; padding-right:10px; font-weight:600; color:#1f2d3d; }
+.desk-field{ color:#0f172a; }
+
+.desk-split{ display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin: 10px 0 14px; }
+.desk-panel{
+  background:#f0f6ff; border:1px solid #9fb6d5; border-radius: 3px; padding:10px 12px;
+}
+.desk-panel__title{ font-weight:700; margin-bottom:6px; color:#1d3557; }
+.desk-list{ margin:0; padding-left: 16px; }
+
+/* Form grid (etiquetas a la izquierda) */
+.form-grid{
+  display:grid; gap:10px;
+  grid-template-columns: 220px 1fr;
+  align-items:center;
+}
+.fg-label{ justify-self:end; padding-right:10px; color:#1f2d3d; font-weight:600; }
+/* .fg-field: se usa como clase en el HTML, pero no requiere reglas aquí. */
+.fg-input{
+  width: 100%; max-width: 460px; height: 30px;
+  padding: 4px 8px; background:#fff; color:#111827;
+  border: 1px solid #7f9db9; border-radius: 2px;
+  box-shadow: inset 0 1px 0 #eef5ff;
+}
+.fg-input:focus{ border-color:#2d6adf; box-shadow: 0 0 0 2px rgba(45,106,223,.18); outline:none; }
+
+.fg-details{ grid-column: 1 / -1; }
+.fg-opt{
+  display:grid; grid-template-columns: 140px 1fr;
+  gap:6px; margin-top:8px; max-width: 680px;
+}
+.fg-actions{ grid-column: 2 / 3; display:flex; gap:8px; margin-top:6px; }
+.fg-actions.end{ justify-content:flex-end; }
+
+/* Tabla de registros */
+.desk-table{ width:100%; border-collapse: collapse; margin-top:8px; background:#fff; }
+.desk-table th, .desk-table td{ border:1px solid #9fb6d5; padding:6px 8px; }
+.desk-table thead th{ background:#cfe3f6; text-align:left; }
+.desk-table td.right, .right{ text-align:right; }
+.desk-table .muted{ color:#6b7280; }
+
+/* Botones estilo clásico */
+.win-btn{
+  min-width: 120px; height: 30px; padding: 0 12px;
+  border:1px solid #7f9db9; background:#eaf2ff; color:#1f2937;
+  font-weight:700; border-radius: 3px; text-decoration:none; display:inline-flex; align-items:center; justify-content:center;
+}
+.win-btn:hover{ filter:brightness(1.03); }
+.win-btn:active{ transform: translateY(1px); }
+.win-btn.primary{ background:#2d6adf; color:#fff; border-color:#2459bf; }
+.win-btn.danger{ background:#fbe4e4; color:#b61d1d; border-color:#d59b9b; }
+
+/* Responsive básico */
+@media (max-width: 900px){
+  .desk-row, .form-grid{ grid-template-columns: 1fr; }
+  .desk-label, .fg-label{ justify-self:start; }
+  .fg-actions{ grid-column: 1 / -1; }
+}

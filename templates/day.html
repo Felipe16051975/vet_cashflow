@@ -1,0 +1,294 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="desk-window">
+  <!-- Barra de título -->
+  <div class="desk-titlebar">
+    <div class="desk-title">
+      <span class="desk-logo">🐾</span>
+      Consulta Veterinaria Tin Tin — Resumen del día: {{ day.fecha }}
+    </div>
+  </div>
+
+  <!-- Cuerpo de la “ventana” -->
+  <div class="desk-body">
+
+    <!-- Cabecera del día -->
+    <div class="desk-section">
+      <div class="desk-row">
+        <div class="desk-label">Doctor/a:</div>
+        <div class="desk-field"><b>{{ day.doctor or '—' }}</b></div>
+      </div>
+      <div class="desk-row">
+        <div class="desk-label">Apertura de caja:</div>
+        <div class="desk-field">{{ (day.apertura_caja or 0)|clp }}</div>
+      </div>
+      <div class="desk-row">
+        <div class="desk-label">Cierre de caja:</div>
+        <div class="desk-field">{{ (day.cierre_caja or 0)|clp }}</div>
+      </div>
+    </div>
+
+    <!-- Totales -->
+    <div class="desk-split">
+      <div class="desk-panel">
+        <div class="desk-panel__title">Totales por tipo de pago</div>
+        <ul class="desk-list">
+          <li>Débito/Crédito: {{ tot_pago.get('DEBITO/CREDITO', 0)|clp }}</li>
+          <li>Efectivo: {{ tot_pago.get('EFECTIVO', 0)|clp }}</li>
+          <li>Transferencia: {{ tot_pago.get('TRANSFERENCIA', 0)|clp }}</li>
+        </ul>
+      </div>
+      <div class="desk-panel">
+        <div class="desk-panel__title">Totales por categoría</div>
+        <ul class="desk-list">
+          <li>Atenciones: {{ tot_cat.get('ATENCION', 0)|clp }}</li>
+          <li>Procedimientos: {{ tot_cat.get('PROCEDIMIENTO', 0)|clp }}</li>
+          <li>Farmacia/Petshop: {{ tot_cat.get('FARMACIA', 0)|clp }}</li>
+          <li>Exámenes: {{ tot_cat.get('EXAMEN', 0)|clp }}</li>
+          <li>Peluquería: {{ tot_cat.get('PELUQUERIA', 0)|clp }}</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Resumen por paciente -->
+    <div class="desk-panel">
+      <div class="desk-panel__title">Resumen por paciente (tutor + mascota)</div>
+      <table class="desk-table">
+        <thead>
+          <tr>
+            <th style="width:220px;">Tutor/a</th>
+            <th style="width:220px;">Mascota</th>
+            <th style="width:100px;" class="right"># Atenciones</th>
+            <th style="width:160px;" class="right">Total</th>
+            <th style="width:160px;"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in patient_groups %}
+            <tr>
+              <td>{{ p.tutor or '—' }}</td>
+              <td>{{ p.mascota or '—' }}</td>
+              <td class="right">{{ p.count }}</td>
+              <td class="right">{{ p.total|clp }}</td>
+              <td class="right">
+                <a class="win-btn"
+                   href="{{ url_for('day_detail', day_id=day.id, tutor=p.tutor, mascota=p.mascota) }}">
+                  Ver cuenta
+                </a>
+              </td>
+            </tr>
+          {% else %}
+            <tr><td colspan="5" class="muted">Aún no hay atenciones con tutor/mascota.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% if sel_tutor or sel_mascota %}
+    <div class="desk-panel">
+      <div class="desk-panel__title">
+        Cuenta seleccionada — Tutor: <b>{{ sel_tutor or '—' }}</b> · Mascota: <b>{{ sel_mascota or '—' }}</b>
+      </div>
+
+      <table class="desk-table">
+        <thead>
+          <tr><th>Detalle</th><th class="right">Monto</th></tr>
+        </thead>
+        <tbody>
+          {% for e in patient_entries %}
+            <tr>
+              <td>{{ e.descripcion or e.categoria }}</td>
+              <td class="right">{{ e.monto|clp }}</td>
+            </tr>
+          {% else %}
+            <tr><td colspan="2" class="muted">No hay registros aún para esta cuenta.</td></tr>
+          {% endfor %}
+        </tbody>
+        <tfoot>
+          <tr><th class="right">TOTAL</th><th class="right">{{ patient_total|clp }}</th></tr>
+        </tfoot>
+      </table>
+
+      <div class="fg-actions end" style="margin-top:8px;">
+        <a class="win-btn"
+           href="{{ url_for('day_detail', day_id=day.id, tutor=sel_tutor, mascota=sel_mascota) }}">
+          Agregar otra atención a esta cuenta
+        </a>
+        <a class="win-btn primary"
+           href="{{ url_for('day_patient_pdf', day_id=day.id, tutor=sel_tutor, mascota=sel_mascota) }}"
+           target="_blank">Imprimir / PDF</a>
+        <a class="win-btn" href="{{ url_for('day_detail', day_id=day.id) }}">Limpiar selección</a>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Formulario Agregar registro -->
+    <div class="desk-panel">
+      <div class="desk-panel__title">Agregar registro</div>
+
+      <form method="post" class="form-grid">
+        {{ form.hidden_tag() }}
+
+
+        <label class="fg-label">Tutor/a</label>
+        <div class="fg-field">
+          {{ form.tutor(class_="fg-input", placeholder="Nombre del tutor/a") }}
+        </div>
+
+        <label class="fg-label">Mascota</label>
+        <div class="fg-field">
+          {{ form.mascota(class_="fg-input", placeholder="Nombre de la mascota") }}
+        </div>
+
+        <label class="fg-label">Tipo de registro</label>
+        <div class="fg-field">{{ form.categoria(class_="fg-input", id="categoria") }}</div>
+
+        <label class="fg-label">Tipo de pago</label>
+        <div class="fg-field">{{ form.tipo_pago(class_="fg-input") }}</div>
+
+        <label class="fg-label">Monto (CLP)</label>
+        <div class="fg-field">{{ form.monto(class_="fg-input", inputmode="numeric") }}</div>
+
+        <label class="fg-label">Detalle</label>
+        <div class="fg-field">{{ form.descripcion(class_="fg-input") }}</div>
+        
+          <label class="fg-label">Servicio</label>
+          <div class="fg-field">
+            {{ form.servicio(class_="fg-input", id="servicio") }}
+            <div id="catalogInfo" class="catalog-info muted" style="margin-top:6px;"></div>
+          </div>
+
+        <details class="fg-details">
+          <summary>Campos opcionales (peluquería)</summary>
+          <div class="fg-opt">
+            <label>Tutor/a</label>{{ form.tutor(class_="fg-input") }}
+            <label>Mascota</label>{{ form.mascota(class_="fg-input") }}
+            <label>Peso</label>{{ form.peso(class_="fg-input") }}
+            <label>Especie</label>{{ form.especie(class_="fg-input") }}
+          </div>
+        </details>
+
+        <div class="fg-actions">
+          <button class="win-btn primary" type="submit">Agregar</button>
+          <a class="win-btn" href="{{ url_for('day_edit', day_id=day.id) }}">Editar cabecera del día</a>
+        </div>
+        </form>
+        <script>
+        (function(){
+          const catEl   = document.getElementById('categoria');
+          const srvEl   = document.getElementById('servicio');
+          const montoEl = document.getElementById('monto');
+          const descEl  = document.getElementById('descripcion');
+          const infoEl  = document.getElementById('catalogInfo');
+
+          // Incluimos todas las categorías (puedes filtrar si prefieres)
+          const CATS_CON_CATALOGO = new Set(['ATENCION','PROCEDIMIENTO','EXAMEN','FARMACIA','PELUQUERIA']);
+
+          function clp(n){
+            try{ return `$ ${Number(n).toLocaleString('es-CL')}` }catch(e){ return `$ ${n}` }
+          }
+
+          async function cargarServicios(categoria) {
+            srvEl.innerHTML = '';
+            const optEmpty = document.createElement('option');
+            optEmpty.value = ''; optEmpty.textContent = '-- Selecciona --';
+            srvEl.appendChild(optEmpty);
+
+            if (!CATS_CON_CATALOGO.has(categoria)) {
+              infoEl.textContent = 'Catálogo no disponible para esta categoría.';
+              return;
+            }
+
+            try {
+              const res = await fetch(`/api/catalog?categoria=${encodeURIComponent(categoria)}`, { credentials:'same-origin' });
+              const data = await res.json();
+              infoEl.textContent = `Servicios disponibles: ${data.length} para ${categoria}.`;
+              for (const it of data) {
+                const opt = document.createElement('option');
+                opt.value = String(it.id);
+                opt.textContent = it.nombre + (it.precio ? ` — ${clp(it.precio)}` : '');
+                opt.dataset.nombre = it.nombre;
+                opt.dataset.precio = it.precio || 0;
+                srvEl.appendChild(opt);
+              }
+            } catch(e) {
+              infoEl.textContent = 'Error cargando catálogo.';
+              console.error(e);
+            }
+          }
+
+          catEl?.addEventListener('change', (e) => {
+            const categoria = (e.target.value || '').toUpperCase();
+            cargarServicios(categoria);
+            srvEl.value = '';
+            infoEl.textContent = '';
+            if (!descEl.value) descEl.value = '';
+            if (!montoEl.value) montoEl.value = '';
+          });
+
+          srvEl?.addEventListener('change', (e) => {
+            const opt = srvEl.options[srvEl.selectedIndex];
+            const nombre = opt?.dataset?.nombre || '';
+            const precio = parseInt(opt?.dataset?.precio || '0', 10);
+            if (descEl && (!descEl.value || descEl.value.trim() === '')) descEl.value = nombre;
+            if (montoEl && (!montoEl.value || Number(montoEl.value) === 0)) montoEl.value = precio || '';
+            infoEl.textContent = nombre ? `Seleccionado: ${nombre}${precio ? ' — ' + clp(precio) : ''}` : '';
+          });
+
+          // Inicialización si ya viene categoría seteada
+          if (catEl && catEl.value) {
+            cargarServicios(catEl.value.toUpperCase());
+          }
+        })();
+        </script>
+      </form>
+    </div>
+
+    <!-- Tabla Registros -->
+    <div class="desk-panel">
+      <div class="desk-panel__title">Registros</div>
+
+      <table class="desk-table">
+        <thead>
+          <tr>
+            <th>Hora</th><th>Categoría</th><th>Detalle</th><th>Pago</th><th class="right">Monto</th><th>Opcionales</th><th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for e in day.entries %}
+            <tr>
+              <td>{{ e.created_at.strftime('%H:%M') if e.created_at else '—' }}</td>
+              <td>{{ e.categoria }}</td>
+              <td>{{ e.descripcion or '—' }}</td>
+              <td>{{ e.tipo_pago }}</td>
+              <td class="right">{{ e.monto|clp }}</td>
+              <td>
+                {% if e.tutor %}Tutor: {{ e.tutor }}{% endif %}
+                {% if e.mascota %}{% if e.tutor %} — {% endif %}Mascota: {{ e.mascota }}{% endif %}
+                {% if e.peso %}{% if e.tutor or e.mascota %} — {% endif %}Peso: {{ e.peso }}{% endif %}
+                {% if e.especie %}{% if e.tutor or e.mascota or e.peso %} — {% endif %}Especie: {{ e.especie }}{% endif %}
+              </td>
+              <td class="right">
+                <form method="post" action="{{ url_for('entry_delete', entry_id=e.id) }}">
+                  <button class="win-btn danger" type="submit">Eliminar</button>
+                </form>
+              </td>
+            </tr>
+          {% else %}
+            <tr><td colspan="7" class="muted">Aún no hay registros.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <div class="fg-actions end">
+        <form method="post" action="{{ url_for('day_close', day_id=day.id) }}">
+          <button class="win-btn primary" type="submit">Calcular y guardar Cierre de Caja</button>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

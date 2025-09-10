@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Días recientes</h2>
+<table>
+  <thead>
+    <tr><th>Fecha</th><th>Doctor/a</th><th>Apertura</th><th>Cierre</th><th>Total Día</th><th>Acciones</th></tr>
+  </thead>
+  <tbody>
+    {% for d in days %}
+      <tr>
+        <td>{{ d.fecha.strftime('%Y-%m-%d') }}</td>
+        <td>{{ d.doctor or '-' }}</td>
+        <td>{{ d.apertura_caja|clp }}</td>
+        <td>{{ d.cierre_caja|clp }}</td>
+        <td>{{ d.total_dia()|clp }}</td>
+        <td><a class="btn" href="{{ url_for('day_detail', day_id=d.id) }}">Abrir</a></td>
+      </tr>
+    {% else %}
+      <tr><td colspan="6">No hay días aún. Crea el primero.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

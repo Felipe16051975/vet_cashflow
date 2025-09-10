@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- HERO / BANNER -->
+<section class="cal-hero">
+  <div class="cal-hero__inner">
+    <div class="cal-hero__brand">
+      <div class="cal-hero__logo">🐾</div>
+      <div>
+        <h2>Consulta Veterinaria Tin Tin</h2>
+        <p>Flujo de Caja</p>
+      </div>
+    </div>
+
+    <div class="cal-hero__card">
+      <div class="card__title">
+        <span class="paw">🐾</span> Datos de la clínica
+      </div>
+      <div class="card__body">
+        <div><strong>Correo:</strong> consultaveterinariatintin@gmail.com</div>
+        <!-- Si quieres agregar fono/dirección/horario, los ponemos aquí -->
+      </div>
+    </div>
+  </div>
+</section>
+
+<h2 class="page-title">Calendario: {{ month_name }} {{ year }}</h2>
+
+<!-- Toolbar de navegación -->
+<div class="toolbar">
+  <div class="btn-group">
+    <a class="btn" href="{{ url_for('calendar_view', year=(year - (1 if month == 1 else 0)), month=(12 if month == 1 else month - 1)) }}">◀ Mes anterior</a>
+    <a class="btn" href="{{ url_for('calendar_view') }}">Mes actual</a>
+    <a class="btn" href="{{ url_for('calendar_view', year=(year + (1 if month == 12 else 0)), month=(1 if month == 12 else month + 1)) }}">Mes siguiente ▶</a>
+  </div>
+  <a class="btn primary" href="{{ url_for('calendar_report', year=year, month=month) }}">Ver resumen mensual</a>
+</div>
+
+<!-- Encabezados domingo → sábado -->
+<div class="calendar">
+  <div class="cal-head sun">Domingo</div>
+  <div class="cal-head">Lunes</div>
+  <div class="cal-head">Martes</div>
+  <div class="cal-head">Miércoles</div>
+  <div class="cal-head">Jueves</div>
+  <div class="cal-head">Viernes</div>
+  <div class="cal-head sat">Sábado</div>
+
+  {% for week in weeks %}
+    {% for day in week %}
+      {% set in_month = (day.month == month) %}
+      {% set d = existing.get(day) %}
+      {% set wd = day.weekday() %} {# 0=Lun ... 6=Dom #}
+      {% set weekend = (wd == 6 or wd == 5) %}
+      <div class="cal-cell {{ 'out' if not in_month }} {{ 'sun' if wd==6 }} {{ 'sat' if wd==5 }}">
+        <div class="cal-date">{{ day.day }}</div>
+
+        {% if d %}
+          <div class="mini">
+            <span class="chip">{{ day_summ.get(day, {}).get('count', 0) }} tx</span>
+            <span class="chip total">{{ (day_summ.get(day, {}).get('total', 0))|clp }}</span>
+          </div>
+          <a class="badge ok" href="{{ url_for('day_detail', day_id=d.id) }}">Abrir</a>
+        {% else %}
+          <a class="badge" href="{{ url_for('day_new', date=day.strftime('%Y-%m-%d')) }}">Crear</a>
+        {% endif %}
+      </div>
+    {% endfor %}
+  {% endfor %}
+</div>
+
+<div class="toolbar bottom">
+  <a class="btn primary" href="{{ url_for('calendar_report', year=year, month=month) }}">Ver resumen mensual</a>
+</div>
+
+{% endblock %}

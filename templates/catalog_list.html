@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="desk-window">
+  <div class="desk-titlebar">
+    <div class="desk-title">
+      <span class="desk-logo">🐾</span>
+      Consulta Veterinaria Tin Tin — Catálogo de servicios
+    </div>
+  </div>
+
+  <div class="desk-body">
+    <form method="get" class="form-grid" style="margin-bottom:8px;">
+      <label class="fg-label">Categoría</label>
+      <div class="fg-field">
+        <select name="cat" class="fg-input" style="max-width:220px;">
+          <option value="">Todas</option>
+          {% for val,label in CATEGORY_CHOICES %}
+            <option value="{{ val }}" {% if cat==val %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <label class="fg-label">Buscar</label>
+      <div class="fg-field">
+        <input type="text" name="q" value="{{ q or '' }}" class="fg-input" placeholder="Nombre del servicio…"
+               style="max-width:300px;">
+      </div>
+
+      <div class="fg-actions">
+        <button class="win-btn primary" type="submit">Filtrar</button>
+        <a class="win-btn" href="{{ url_for('catalog_list') }}">Limpiar</a>
+        <a class="win-btn" href="{{ url_for('catalog_new') }}">Nuevo servicio</a>
+      </div>
+    </form>
+
+    <table class="desk-table">
+      <thead>
+        <tr>
+          <th style="width:180px;">Categoría</th>
+          <th>Servicio</th>
+          <th class="right" style="width:160px;">Precio sugerido</th>
+          <th style="width:180px;"></th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for it in items %}
+        <tr>
+          <td>{{ it.categoria }}</td>
+          <td>{{ it.nombre }}</td>
+          <td class="right">{{ (it.precio or 0)|clp }}</td>
+          <td class="right">
+            <a class="win-btn" href="{{ url_for('catalog_edit', item_id=it.id) }}">Editar</a>
+            <form method="post" action="{{ url_for('catalog_delete', item_id=it.id) }}" style="display:inline;">
+              <button class="win-btn danger" type="submit" onclick="return confirm('¿Eliminar este servicio?')">Eliminar</button>
+            </form>
+          </td>
+        </tr>
+      {% else %}
+        <tr><td colspan="4" class="muted">No hay servicios cargados.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

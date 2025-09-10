@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="desk-window">
+  <div class="desk-titlebar">
+    <div class="desk-title">
+      <span class="desk-logo">🐾</span>
+      Consulta Veterinaria Tin Tin — {{ 'Nuevo servicio' if is_new else 'Editar servicio' }}
+    </div>
+  </div>
+
+  <div class="desk-body">
+    <form method="post" class="form-grid">
+      {{ form.hidden_tag() }}
+
+      <label class="fg-label">Categoría</label>
+      <div class="fg-field">{{ form.categoria(class_="fg-input") }}</div>
+
+      <label class="fg-label">Nombre</label>
+      <div class="fg-field">{{ form.nombre(class_="fg-input") }}</div>
+
+      <label class="fg-label">Precio sugerido (CLP)</label>
+      <div class="fg-field">{{ form.precio(class_="fg-input", inputmode="numeric") }}</div>
+
+      <div class="fg-actions">
+        <button class="win-btn primary" type="submit">Guardar</button>
+        <a class="win-btn" href="{{ url_for('catalog_list') }}">Volver</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

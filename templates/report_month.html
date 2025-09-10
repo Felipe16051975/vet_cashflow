@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Resumen mensual: {{ month_name }} {{ year }}</h2>
+
+<div class="grid">
+  <div>
+    <h3>Por tipo de pago</h3>
+    <table>
+      <tbody>
+        <tr><td>Débito/Crédito</td><td class="right">{{ tot_por_pago['DEBITO/CREDITO']|clp }}</td></tr>
+        <tr><td>Efectivo</td><td class="right">{{ tot_por_pago['EFECTIVO']|clp }}</td></tr>
+        <tr><td>Transferencia</td><td class="right">{{ tot_por_pago['TRANSFERENCIA']|clp }}</td></tr>
+        <tr><th>Total general</th><th class="right">{{ total_general|clp }}</th></tr>
+      </tbody>
+    </table>
+  </div>
+  <div>
+    <h3>Por categoría</h3>
+    <table>
+      <tbody>
+        <tr><td>Atención</td><td class="right">{{ tot_por_cat['ATENCION']|clp }}</td></tr>
+        <tr><td>Procedimiento</td><td class="right">{{ tot_por_cat['PROCEDIMIENTO']|clp }}</td></tr>
+        <tr><td>Farmacia/Petshop</td><td class="right">{{ tot_por_cat['FARMACIA']|clp }}</td></tr>
+        <tr><td>Examen</td><td class="right">{{ tot_por_cat['EXAMEN']|clp }}</td></tr>
+        <tr><td>Peluquería</td><td class="right">{{ tot_por_cat['PELUQUERIA']|clp }}</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<h3>Indicadores</h3>
+<ul>
+  <li>Días con movimiento: <b>{{ dias_con_mov }}</b></li>
+  <li>Transacciones: <b>{{ tx_count }}</b></li>
+  <li>Promedio diario: <b>{{ promedio_diario|clp }}</b></li>
+  <li>Ticket promedio: <b>{{ ticket_promedio|clp }}</b></li>
+  <li>Mayor:
+    {% if peak_day %}
+      <b>{{ peak_day.strftime('%Y-%m-%d') }}</b> — {{ peak_total|clp }}
+    {% else %}—{% endif %}
+  </li>
+</ul>
+
+<div style="margin-top:16px;">
+  <a class="btn" href="{{ url_for('calendar_report_pdf', year=year, month=month) }}">Descargar PDF</a>
+  <button class="btn" onclick="window.print()">Imprimir</button>
+  <a class="btn" href="{{ url_for('calendar_view', year=year, month=month) }}">Volver al calendario</a>
+</div>
+
+<style>
+@media print {
+  header, nav, .btn { display: none !important; }
+  table { page-break-inside: avoid; }
+  body { background:#fff; color:#000; }
+}
+</style>
+{% endblock %}

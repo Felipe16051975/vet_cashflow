@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="desk-window">
+  <div class="desk-titlebar">
+    <div class="desk-title">
+      <span class="desk-logo">🐾</span>
+      Consulta Veterinaria Tin Tin — Cierre guardado
+    </div>
+  </div>
+
+  <div class="desk-body">
+    <p><b>El cierre de caja del día {{ day.fecha.strftime('%Y-%m-%d') }} fue guardado correctamente.</b></p>
+    <p>¿Deseas ver un <b>resumen en PDF</b> del día?</p>
+
+    <div class="fg-actions">
+      <a class="win-btn primary" href="{{ url_for('day_report_pdf', day_id=day.id) }}">Sí, ver PDF</a>
+      <a class="win-btn" href="{{ url_for('calendar_view', year=day.fecha.year, month=day.fecha.month) }}">No, volver al calendario</a>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

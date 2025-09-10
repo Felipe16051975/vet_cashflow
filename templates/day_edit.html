@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="desk-window">
+  <div class="desk-titlebar">
+    <div class="desk-title">
+      <span class="desk-logo">🐾</span>
+      Consulta Veterinaria Tin Tin — {{ 'Nuevo día' if is_new else 'Editar día' }}
+    </div>
+  </div>
+
+  <div class="desk-body">
+    <form method="post" class="form-grid">
+      {{ form.hidden_tag() }}
+
+      <label class="fg-label">Fecha</label>
+      <div class="fg-field">{{ form.fecha(class_="fg-input") }}</div>
+
+      <label class="fg-label">Doctora/o</label>
+      <div class="fg-field">{{ form.doctor(class_="fg-input") }}</div>
+
+      <label class="fg-label">Apertura de caja (CLP)</label>
+      <div class="fg-field">{{ form.apertura_caja(class_="fg-input", inputmode="numeric") }}</div>
+
+      <label class="fg-label">Cierre de caja (CLP)</label>
+      <div class="fg-field">{{ form.cierre_caja(class_="fg-input", inputmode="numeric") }}</div>
+
+      <div class="fg-actions">
+        <button class="win-btn primary" type="submit">{{ 'Crear día' if is_new else 'Guardar cambios' }}</button>
+        <a class="win-btn" href="{{ url_for('index') }}">Volver</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
