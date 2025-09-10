@@ -23,7 +23,8 @@ def migrate_model(model):
     for row in rows:
         data = {c.name: getattr(row, c.name) for c in model.__table__.columns}
         obj = model(**data)
-        postgres_session.add(obj)
+        # UPSERT usando merge() en vez de add()
+        postgres_session.merge(obj)
     postgres_session.commit()
     print(f"Listo: {len(rows)} registros migrados.")
 
@@ -32,4 +33,4 @@ if __name__ == "__main__":
     migrate_model(Day)
     migrate_model(CatalogItem)
     migrate_model(Entry)
-    print("¡Migración completa!")
+    print("¡Migración completa con UPSERT!")
