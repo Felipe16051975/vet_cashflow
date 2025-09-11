@@ -5,6 +5,31 @@ def flash_form_errors(form):
         field_name = label.text if label else field
         for e in errs:
             flash(f"{field_name}: {e}", "danger")
+
+# Helper para operaciones de base de datos seguras
+def safe_db_operation(operation_func, success_message=None, error_message="Error en la operación de base de datos"):
+    """
+    Ejecuta una operación de base de datos con manejo de errores mejorado.
+    
+    Args:
+        operation_func: Función que contiene la operación de DB
+        success_message: Mensaje a mostrar en caso de éxito
+        error_message: Mensaje a mostrar en caso de error
+    
+    Returns:
+        True si la operación fue exitosa, False en caso contrario
+    """
+    try:
+        result = operation_func()
+        db.session.commit()
+        if success_message:
+            flash(success_message, "success")
+        return result if result is not None else True
+    except Exception as e:
+        db.session.rollback()
+        flash(f"{error_message}: {str(e)}", "danger")
+        print(f"Database error: {e}")  # Log para desarrollo
+        return False
 from flask import Flask, render_template, redirect, url_for, request, flash, session, jsonify
 from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import date, datetime
@@ -16,6 +41,7 @@ from sqlalchemy import func
 from io import BytesIO
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
+from flask_migrate import Migrate
 
 # Inicialización de la app
 
@@ -23,45 +49,63 @@ def create_app():
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_object(Config)
     db.init_app(app)
+    
+    # Initialize Flask-Migrate
+    migrate = Migrate(app, db)
+    
     with app.app_context():
-        db.create_all()
+        # Use migrations instead of db.create_all() for production safety
+        # For development, you can still use db.create_all() if no migrations exist
+        try:
+            # Check if migrations directory exists
+            import os
+            if not os.path.exists('migrations'):
+                print("No migrations directory found. Creating tables directly for development.")
+                db.create_all()
+        except Exception as e:
+            print(f"Migration check failed, falling back to create_all(): {e}")
+            db.create_all()
         
-        # Seed admin user if not present
-        admin_username = app.config.get("ADMIN_USERNAME", "admin")
-        admin_user = User.query.filter_by(username=admin_username).first()
-        
-        if not admin_user:
-            admin_password = app.config.get("ADMIN_PASSWORD")
-            admin_password_hash = app.config.get("ADMIN_PASSWORD_HASH")
+        # Seed admin user if not present with improved error handling
+        try:
+            admin_username = app.config.get("ADMIN_USERNAME", "admin")
+            admin_user = User.query.filter_by(username=admin_username).first()
             
-            if admin_password_hash:
-                # Use the pre-hashed password
-                admin_user = User(
-                    username=admin_username,
-                    password_hash=admin_password_hash,
-                    role="admin",
-                    is_active=True
-                )
-            elif admin_password:
-                # Hash the plain password
-                admin_user = User(
-                    username=admin_username,
-                    role="admin",
-                    is_active=True
-                )
-                admin_user.set_password(admin_password)
-            else:
-                # Create with default password if none provided
-                admin_user = User(
-                    username=admin_username,
-                    role="admin",
-                    is_active=True
-                )
-                admin_user.set_password("admin")  # Default password
+            if not admin_user:
+                admin_password = app.config.get("ADMIN_PASSWORD")
+                admin_password_hash = app.config.get("ADMIN_PASSWORD_HASH")
                 
-            db.session.add(admin_user)
-            db.session.commit()
-            print(f"Admin user '{admin_username}' created successfully.")
+                if admin_password_hash:
+                    # Use the pre-hashed password
+                    admin_user = User(
+                        username=admin_username,
+                        password_hash=admin_password_hash,
+                        role="admin",
+                        is_active=True
+                    )
+                elif admin_password:
+                    # Hash the plain password
+                    admin_user = User(
+                        username=admin_username,
+                        role="admin",
+                        is_active=True
+                    )
+                    admin_user.set_password(admin_password)
+                else:
+                    # Create with default password if none provided
+                    admin_user = User(
+                        username=admin_username,
+                        role="admin",
+                        is_active=True
+                    )
+                    admin_user.set_password("admin")  # Default password
+                    
+                db.session.add(admin_user)
+                db.session.commit()
+                print(f"Admin user '{admin_username}' created successfully.")
+        except Exception as e:
+            print(f"Error creating admin user: {e}")
+            db.session.rollback()
         
     return app
 
@@ -260,17 +304,20 @@ def day_new():
             flash("Ya existe un día con esa fecha. Se abrirá para edición.", "warning")
             return redirect(url_for("day_detail", day_id=existente.id))
 
-        # crear nuevo día
-        d = Day(
-            fecha=form.fecha.data,
-            doctor=form.doctor.data or "",
-            apertura_caja=form.apertura_caja.data or 0,
-            cierre_caja=form.cierre_caja.data or 0,
-        )
-        db.session.add(d)
-        db.session.commit()
-        flash("Día creado.", "success")
-        return redirect(url_for("day_detail", day_id=d.id))
+        # crear nuevo día con manejo seguro de errores
+        def create_day():
+            d = Day(
+                fecha=form.fecha.data,
+                doctor=form.doctor.data or "",
+                apertura_caja=form.apertura_caja.data or 0,
+                cierre_caja=form.cierre_caja.data or 0,
+            )
+            db.session.add(d)
+            return d
+        
+        day = safe_db_operation(create_day, "Día creado.", "Error al crear el día")
+        if day:
+            return redirect(url_for("day_detail", day_id=day.id))
 
     return render_template("day_edit.html", form=form, is_new=True)
 
@@ -312,22 +359,25 @@ def day_detail(day_id):
                     form.descripcion.data = item.nombre
 
     if form.validate_on_submit():
-        e = Entry(
-            day_id=day.id,
-            categoria=form.categoria.data,
-            descripcion=form.descripcion.data or "",
-            monto=form.monto.data,
-            tipo_pago=form.tipo_pago.data,
-            tutor=(form.tutor.data or "").strip(),
-            mascota=(form.mascota.data or "").strip(),
-            peso=form.peso.data or "",
-            especie=form.especie.data or "",
-        )
-        db.session.add(e)
-        db.session.commit()
-        flash("Registro agregado.", "success")
-        # Redirigir conservando tutor/mascota para seguir cargando a la misma cuenta
-        return redirect(url_for("day_detail", day_id=day.id, tutor=e.tutor, mascota=e.mascota))
+        def create_entry():
+            e = Entry(
+                day_id=day.id,
+                categoria=form.categoria.data,
+                descripcion=form.descripcion.data or "",
+                monto=form.monto.data,
+                tipo_pago=form.tipo_pago.data,
+                tutor=(form.tutor.data or "").strip(),
+                mascota=(form.mascota.data or "").strip(),
+                peso=form.peso.data or "",
+                especie=form.especie.data or "",
+            )
+            db.session.add(e)
+            return e
+        
+        entry = safe_db_operation(create_entry, "Registro agregado.", "Error al crear el registro")
+        if entry:
+            # Redirigir conservando tutor/mascota para seguir cargando a la misma cuenta
+            return redirect(url_for("day_detail", day_id=day.id, tutor=entry.tutor, mascota=entry.mascota))
 
     # --- Resúmenes existentes ---
     tot_pago = day.total_por_pago()
@@ -380,11 +430,16 @@ def day_detail(day_id):
 @app.post("/day/<int:day_id>/close")
 def day_close(day_id):
     day = Day.query.get_or_404(day_id)
-    # cierre de caja = apertura + total del día
-    day.cierre_caja = (day.apertura_caja or 0) + day.total_dia()
-    db.session.commit()
-    flash("Cierre de caja calculado y guardado.", "info")
-    return redirect(url_for("day_close_confirm", day_id=day.id))
+    
+    def close_day():
+        # cierre de caja = apertura + total del día
+        day.cierre_caja = (day.apertura_caja or 0) + day.total_dia()
+        return day
+    
+    if safe_db_operation(close_day, "Cierre de caja calculado y guardado.", "Error al cerrar el día"):
+        return redirect(url_for("day_close_confirm", day_id=day.id))
+    else:
+        return redirect(url_for("day_detail", day_id=day.id))
 
 @app.get("/day/<int:day_id>/close/confirm")
 def day_close_confirm(day_id):
@@ -478,13 +533,15 @@ def day_edit(day_id):
     day = Day.query.get_or_404(day_id)
     form = DayForm(obj=day)
     if form.validate_on_submit():
-        day.fecha = form.fecha.data
-        day.doctor = form.doctor.data or ""
-        day.apertura_caja = form.apertura_caja.data or 0
-        day.cierre_caja = form.cierre_caja.data or 0
-        db.session.commit()
-        flash("Datos del día actualizados.", "success")
-        return redirect(url_for("day_detail", day_id=day.id))
+        def update_day():
+            day.fecha = form.fecha.data
+            day.doctor = form.doctor.data or ""
+            day.apertura_caja = form.apertura_caja.data or 0
+            day.cierre_caja = form.cierre_caja.data or 0
+            return day
+        
+        if safe_db_operation(update_day, "Datos del día actualizados.", "Error al actualizar el día"):
+            return redirect(url_for("day_detail", day_id=day.id))
     return render_template("day_edit.html", form=form, is_new=False, day=day)
 
 
@@ -594,10 +651,15 @@ def calendar_report_pdf():
 def delete_entry(entry_id):
     e = Entry.query.get_or_404(entry_id)
     day_id = e.day_id
-    db.session.delete(e)
-    db.session.commit()
-    flash("Registro eliminado.", "info")
-    return redirect(url_for("day_detail", day_id=day_id))
+    
+    def delete_entry_op():
+        db.session.delete(e)
+        return True
+    
+    if safe_db_operation(delete_entry_op, "Registro eliminado.", "Error al eliminar el registro"):
+        return redirect(url_for("day_detail", day_id=day_id))
+    else:
+        return redirect(url_for("day_detail", day_id=day_id))
 
 @app.route("/catalog")
 def catalog_list():
@@ -632,19 +694,24 @@ def catalog_new():
             func.upper(CatalogItem.nombre) == func.upper(form.nombre.data.strip())
         ).first()
         if exists:
-            exists.precio = form.precio.data or 0
-            db.session.commit()
-            flash("Servicio actualizado (ya existía).", "info")
-            return redirect(url_for("catalog_list"))
-        item = CatalogItem(
-            categoria=form.categoria.data,
-            nombre=form.nombre.data.strip(),
-            precio=form.precio.data or 0
-        )
-        db.session.add(item)
-        db.session.commit()
-        flash("Servicio creado.", "success")
-        return redirect(url_for("catalog_list"))
+            def update_existing():
+                exists.precio = form.precio.data or 0
+                return True
+            
+            if safe_db_operation(update_existing, "Servicio actualizado (ya existía).", "Error al actualizar el servicio existente"):
+                return redirect(url_for("catalog_list"))
+        else:
+            def create_item():
+                item = CatalogItem(
+                    categoria=form.categoria.data,
+                    nombre=form.nombre.data.strip(),
+                    precio=form.precio.data or 0
+                )
+                db.session.add(item)
+                return item
+            
+            if safe_db_operation(create_item, "Servicio creado.", "Error al crear el servicio"):
+                return redirect(url_for("catalog_list"))
 
     # Si vino POST y falló validación, muestra motivos
     if request.method == "POST":
@@ -658,12 +725,14 @@ def catalog_edit(item_id):
     form.categoria.choices = CATEGORY_CHOICES
 
     if form.validate_on_submit():
-        item.categoria = form.categoria.data
-        item.nombre = form.nombre.data.strip()
-        item.precio = form.precio.data or 0
-        db.session.commit()
-        flash("Servicio actualizado.", "success")
-        return redirect(url_for("catalog_list"))
+        def update_catalog_item():
+            item.categoria = form.categoria.data
+            item.nombre = form.nombre.data.strip()
+            item.precio = form.precio.data or 0
+            return item
+        
+        if safe_db_operation(update_catalog_item, "Servicio actualizado.", "Error al actualizar el servicio"):
+            return redirect(url_for("catalog_list"))
 
     if request.method == "POST":
         flash_form_errors(form)
@@ -672,10 +741,15 @@ def catalog_edit(item_id):
 @app.post("/catalog/<int:item_id>/delete")
 def catalog_delete(item_id):
     item = CatalogItem.query.get_or_404(item_id)
-    db.session.delete(item)
-    db.session.commit()
-    flash("Servicio eliminado.", "info")
-    return redirect(url_for("catalog_list"))
+    
+    def delete_catalog_item():
+        db.session.delete(item)
+        return True
+    
+    if safe_db_operation(delete_catalog_item, "Servicio eliminado.", "Error al eliminar el servicio"):
+        return redirect(url_for("catalog_list"))
+    else:
+        return redirect(url_for("catalog_list"))
 
 @app.get("/api/catalog")
 def api_catalog():

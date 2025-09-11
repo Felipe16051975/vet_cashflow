@@ -11,5 +11,11 @@ venv/
 instance/
 *.db
 
+# Migraciones (específicas del entorno)
+migrations/
+
+# Backups (no commitear backups de DB)
+backups/
+
 # VSCode
 .vscode/
