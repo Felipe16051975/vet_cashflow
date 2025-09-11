@@ -19,12 +19,34 @@ from reportlab.pdfgen import canvas
 
 # Inicialización de la app
 
+def seed_catalog_if_empty():
+    """Seed the catalog with basic services if it's empty"""
+    from models import CatalogItem
+    
+    # Check if catalog is empty
+    if CatalogItem.query.count() > 0:
+        return  # Catalog already has items, don't seed
+    
+    # Create basic catalog items
+    catalog_items = [
+        CatalogItem(categoria="ATENCION", nombre="Vacuna óctuple", precio=17000),
+        CatalogItem(categoria="ATENCION", nombre="Control", precio=10000),
+        CatalogItem(categoria="FARMACIA", nombre="Desparasitación", precio=7000),
+    ]
+    
+    for item in catalog_items:
+        db.session.add(item)
+    
+    db.session.commit()
+    print(f"Seeded catalog with {len(catalog_items)} basic items")
+
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_object(Config)
     db.init_app(app)
     with app.app_context():
         db.create_all()
+        seed_catalog_if_empty()
     return app
 
 app = create_app()
