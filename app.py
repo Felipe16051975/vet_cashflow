@@ -6,11 +6,11 @@ def flash_form_errors(form):
         for e in errs:
             flash(f"{field_name}: {e}", "danger")
 from flask import Flask, render_template, redirect, url_for, request, flash, session, jsonify
-from werkzeug.security import check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import date, datetime
 import calendar as pycal
 from config import Config
-from models import db, Day, Entry, CatalogItem
+from models import db, Day, Entry, CatalogItem, User
 from forms import DayForm, EntryForm, CatalogItemForm, CATEGORY_CHOICES
 from sqlalchemy import func
 from io import BytesIO
@@ -25,9 +25,58 @@ def create_app():
     db.init_app(app)
     with app.app_context():
         db.create_all()
+        
+        # Seed admin user if not present
+        admin_username = app.config.get("ADMIN_USERNAME", "admin")
+        admin_user = User.query.filter_by(username=admin_username).first()
+        
+        if not admin_user:
+            admin_password = app.config.get("ADMIN_PASSWORD")
+            admin_password_hash = app.config.get("ADMIN_PASSWORD_HASH")
+            
+            if admin_password_hash:
+                # Use the pre-hashed password
+                admin_user = User(
+                    username=admin_username,
+                    password_hash=admin_password_hash,
+                    role="admin",
+                    is_active=True
+                )
+            elif admin_password:
+                # Hash the plain password
+                admin_user = User(
+                    username=admin_username,
+                    role="admin",
+                    is_active=True
+                )
+                admin_user.set_password(admin_password)
+            else:
+                # Create with default password if none provided
+                admin_user = User(
+                    username=admin_username,
+                    role="admin",
+                    is_active=True
+                )
+                admin_user.set_password("admin")  # Default password
+                
+            db.session.add(admin_user)
+            db.session.commit()
+            print(f"Admin user '{admin_username}' created successfully.")
+        
     return app
 
 app = create_app()
+
+# Authentication protection
+@app.before_request
+def require_login():
+    # Allow access to login page and static files
+    if request.endpoint in ['login', 'static']:
+        return
+    
+    # Check if user is logged in
+    if not session.get("user_id"):
+        return redirect(url_for("login"))
 
 # Filtros personalizados
 @app.template_filter("clp")
@@ -445,22 +494,22 @@ def login():
     from forms import LoginForm
     form = LoginForm()
     if form.validate_on_submit():
-        cfg_pw = app.config.get("ADMIN_PASSWORD")
-        cfg_hash = app.config.get("ADMIN_PASSWORD_HASH")
-        provided = form.password.data or ""
-        ok = False
-        if cfg_hash:
-            ok = check_password_hash(cfg_hash, provided)
-        elif cfg_pw is not None:
-            ok = (provided == cfg_pw)
-        else:
-            flash("No hay contraseña configurada. Define ADMIN_PASSWORD o ADMIN_PASSWORD_HASH.", "warning")
-        if ok:
-            session["logged_in"] = True
+        username = form.username.data
+        password = form.password.data
+        
+        # Find user by username
+        user = User.query.filter_by(username=username, is_active=True).first()
+        
+        if user and user.check_password(password):
+            # Store user info in session
+            session["user_id"] = user.id
+            session["username"] = user.username
+            session["role"] = user.role
+            session["logged_in"] = True  # Keep for backward compatibility
             flash("Bienvenido.", "success")
             return redirect(url_for("calendar_view"))
         else:
-            flash("Contraseña incorrecta.", "danger")
+            flash("Usuario o contraseña incorrectos.", "danger")
     return render_template("login.html", form=form)
 
 

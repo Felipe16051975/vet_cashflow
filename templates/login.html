@@ -15,6 +15,13 @@
         {{ form.hidden_tag() }}
 
         <div class="win-row">
+          <label class="win-label">Usuario</label>
+          <div class="win-field">
+            {{ form.username(placeholder="", class_="win-input") }}
+          </div>
+        </div>
+
+        <div class="win-row">
           <label class="win-label">Contraseña</label>
           <div class="win-field">
             {{ form.password(type="password", placeholder="", class_="win-input") }}
@@ -27,7 +34,7 @@
         </div>
 
         <div class="win-hint">
-          Usa la clave definida en <code>.env</code> (<b>ADMIN_PASSWORD</b>) o la que corresponda al <b>ADMIN_PASSWORD_HASH</b>.
+          Usa las credenciales de usuario configuradas en el sistema.
         </div>
       </form>
     </div>

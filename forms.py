@@ -43,6 +43,7 @@ class EntryForm(FlaskForm):
     submit = SubmitField("Agregar")
 
 class LoginForm(FlaskForm):
+    username = StringField("Usuario", validators=[DataRequired()])
     password = StringField("Contraseña", validators=[DataRequired()])
     submit = SubmitField("Ingresar")
 
